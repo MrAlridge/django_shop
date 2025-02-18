@@ -1,0 +1,35 @@
+lib/
+    app.dart               #  应用的入口 Widget (例如 MyApp)
+    config/              #  配置相关 (例如主题、路由)
+      theme.dart         #  应用主题
+      routes.dart        #  路由配置
+    constants/           #  常量 (例如颜色、尺寸、API endpoints)
+      colors.dart
+      api_endpoints.dart
+    data/                 #  数据相关
+      models/            #  数据模型 (例如 Product, Category, User)
+      providers/         #  状态管理 Providers (如果使用 Provider)
+      repositories/      #  数据仓库，封装 API 请求和数据处理逻辑
+        product_repository.dart
+        user_repository.dart
+      services/          #  API 服务 (封装 HTTP 请求)
+        api_client.dart     #  封装通用的 API Client
+        product_api_service.dart
+        user_api_service.dart
+    modules/              #  模块化功能 (例如商品模块、用户模块、订单模块)
+      product/           #  商品模块
+        screens/         #  商品模块的页面 (例如 ProductListScreen, ProductDetailScreen)
+        widgets/         #  商品模块的 Widget 组件 (例如 ProductCard, CategoryTile)
+      user/              #  用户模块
+        screens/         #  用户模块的页面 (例如 LoginScreen, RegisterScreen, ProfileScreen)
+        widgets/
+      order/              #  订单模块 (后续添加)
+      cart/               #  购物车模块 (后续添加)
+    shared/               #  共享的组件和工具类
+      widgets/         #  通用的 Widget 组件 (例如 CustomButton, LoadingIndicator)
+      utils/           #  工具类 (例如格式化工具、验证工具)
+  test/                  #  单元测试和集成测试
+  android/               #  Android 平台相关配置
+  ios/                   #  iOS 平台相关配置
+  web/                   #  Web 平台相关配置 (如果需要支持 Web)
+  pubspec.yaml           #  项目依赖配置文件
