@@ -1,3 +1,4 @@
+from pyexpat import model
 from django.db import models
 from django.utils.text import slugify
 import decimal
@@ -66,6 +67,7 @@ class Product(models.Model):
     barcode = models.CharField(max_length=100, unique=True, blank=True, null=True) # 条形码，允许为空
     sku = models.CharField(max_length=100, unique=True) #  SKU，唯一
     is_active = models.BooleanField(default=True) #  是否上架，默认上架
+    sales_count = models.IntegerField(default=0) # * 商品销量，默认为0
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -95,3 +97,17 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.product.name}"
+    
+# TODO:等具体的商品出来以后再做这里的实现
+"""
+class ProductAttribute(models.Model):
+    color = models.CharField(max_length=100)
+    size = models.CharField(max_length=100)
+    specifications = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"color:{self.color},size:{self.size},specifications:{self.specifications}"
+    
+class ProductAttributeValue(models.Model):
+    pass
+"""

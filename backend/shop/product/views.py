@@ -1,8 +1,11 @@
-from rest_framework import viewsets, generics, permissions, filters
+from venv import create
+from rest_framework import viewsets, generics, permissions, filters, status
 # TODO: 这个依赖可能是Gemini生成出问题了？
 # from django_filters import DjangoFilterBackend #  用于过滤
 from rest_framework.decorators import action #  自定义 action
 from rest_framework.response import Response
+
+from backend.shop.product.filters import ProductFilter
 from .models import Category, Product, ProductImage
 from .serializers import CategorySerializer, ProductSerializer, ProductImageSerializer
 
@@ -44,10 +47,25 @@ class ProductViewSet(viewsets.ModelViewSet): #  ModelViewSet 提供 CRUD 功能
         product = self.get_object() #  获取当前商品
         serializer = ProductImageSerializer(data=request.data) #  使用 ProductImageSerializer 验证数据
         if serializer.is_valid():
-            serializer.save(product=product) #  保存图片，关联到当前商品
-            return Response(serializer.data, status=201)
+            # ! 这是处理单个图片上传的逻辑
+            # serializer.save(product=product) #  保存图片，关联到当前商品
+            # return Response(serializer.data, status=201)
+            # * 这些是处理多个图片上传的逻辑
+            uploaded_images = request.FILES.getlist('image')    # * 获取上传的文件列表,前端字段名需要设置为'image'
+            created_images = []
+            for image_file in uploaded_images:  # 循环处理上传的文件
+                image_data = {'image': image_file}  # 构建单个图片的数据
+                image_serializer = ProductImageSerializer(data=image_data)
+                if image_serializer.is_valid():
+                    image = image_serializer.save(product=product)  # 保存图片，关联到商品
+                    created_images.append(image_serializer.data)    # 收集创建成功的图片数据
+                else:
+                    # ! 如果单个图片验证失败，直接返回错误
+                    return Response(image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response(created_images, status=status.HTTP_201_CREATED) # * 返回所有创建成功的图片数据
         else:
-            return Response(serializer.errors, status=400)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProductListView(generics.ListAPIView): #  ListAPIView 只提供列表获取功能
@@ -60,9 +78,10 @@ class ProductListView(generics.ListAPIView): #  ListAPIView 只提供列表获�
     serializer_class = ProductSerializer
     # TODO: 依赖修复完成要添加上DjangoFilterBackend
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'brand'] #  顾客端可以按分类、品牌 筛选
+    # filterset_fields = ['category', 'brand'] #  顾客端可以按分类、品牌 筛选
+    filterset_class = ProductFilter
     search_fields = ['name', 'description', 'short_description'] #  顾客端可以按商品名称、描述、简短描述搜索
-    ordering_fields = ['price', 'created_at', 'discount_price', 'name'] #  顾客端可以按价格、创建时间、折扣价、名称 排序
+    ordering_fields = ['price', 'created_at', 'discount_price', 'name', 'sales_count'] #  顾客端可以按价格、创建时间、折扣价、名称 排序
     #  TODO:  添加分页类，例如 PageNumberPagination 或 LimitOffsetPagination
     # pagination_class = 
 

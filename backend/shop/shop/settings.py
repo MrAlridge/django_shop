@@ -31,7 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'rest_framework',
+    'rest_framework',               # rest API框架
+    'rest_framework_simplejwt',     # simpleJWT
     # TODO: 搞清楚这玩意到底是什么
     # 'django_filters',
     'django.contrib.admin',
@@ -133,5 +134,10 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',        # 默认使用JWTAuthentication
+        'rest_framework.authentication.SessionAuthentication',              # Admin后台使用SessionAuthentication
+    ),
+    'EXCEPTION_HANDLER': 'shop.usermgmt.exceptions.custom_exception_handler',   # 配置自定义异常处理
 }

@@ -1,3 +1,6 @@
+import email
+import token
+from typing import Required
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import UserProfile
@@ -56,3 +59,25 @@ class UserLoginSerializer(serializers.Serializer): # 登录序列化器，不需
     '''用于用户登录时的数据验证和序列化。'''
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    """用于验证密码重置请求的Serializer(邮箱或手机号)"""
+    # TODO:这一块看实际情况可能要改成手机号
+    email = serializers.EmailField(required=True)
+    
+    def validate_email(self, value):
+        """用来验证邮箱地址的方法"""
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Email address not found!")
+        return value
+    
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """用于验证密码重置确认的 Serializer (token 和新密码)。"""
+    token = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, write_only=True, min_length=8)
+    confirm_password = serializers.CharField(required=True, write_only=True, min_length=8)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:    # 验证两次密码输入是否一致
+            raise serializers.ValidationError("Passwords do not match")
+        return data

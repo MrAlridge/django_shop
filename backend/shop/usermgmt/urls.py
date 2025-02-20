@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import UserRegistrationView, UserLoginView, UserProfileView, PasswordChangeView, PasswordResetRequestView, PasswordResetConfirmView
+from rest_framework_simplejwt.views import TokenRefreshView     # 导入刷新Token的视图
 
 urlpatterns = [
     path('users/register/', UserRegistrationView.as_view(), name='user-register'),
@@ -9,4 +10,5 @@ urlpatterns = [
     # path('users/password/change/', PasswordChangeView.as_view(), name='password-change'),
     # path('users/password/reset/request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
     # path('users/password/reset/confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+    path('users/token/refresh/', TokenRefreshView.as_view(), name='token refresh')      # Token刷新API
 ]
