@@ -41,8 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'usermgmt',
-    'product',
+    'usermgmt',                     # * 用户管理模块
+    'product',                      # * 产品模块
+    'order',                        # * 订单模块
+    'cart',                         # * 购物车模块
+    
 ]
 
 MIDDLEWARE = [
