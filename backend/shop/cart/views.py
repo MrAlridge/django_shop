@@ -34,13 +34,29 @@ class CartViewSet(viewsets.ViewSet):    # * 使用ViewSet，自定义增删改�
         if product.stock_quantity < int(quantity):
             return Response({"error": "Insufficient stock"}, status=status.HTTP_400_BAD_REQUEST)
         
+        # ? 商品数量限制验证
+        MAX_QUANTITY_PER_ITEM = 100 # 单个商品最大购买数量
+        MAX_CART_ITEMS = 50         # 购物车商品总数限制
+        
+        if quantity > MAX_QUANTITY_PER_ITEM:
+            return Response({"error": f"You can only buy {MAX_QUANTITY_PER_ITEM} at most for each single item."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # ? 如果购物车已满，且添加的是新商品
+        if cart.total_items >= MAX_CART_ITEMS and created is False and product not in [item.product for item in cart.items.all()]:
+            return Response({"error": f"You can only add {MAX_CART_ITEMS} types of item at most for each cart."}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             # 尝试获取已存在的购物车项
             cart_item = CartItem.objects.get(cart=cart, product=product)
-            cart_item.quantity += int(quantity) # 如果已存在就增加数量
+            new_quantity = cart_item.quantity + quantity
+            if new_quantity > MAX_QUANTITY_PER_ITEM:
+                return Response({"error": f"You can only buy {MAX_QUANTITY_PER_ITEM} at most for each single item."}, status=status.HTTP_400_BAD_REQUEST)
+            cart_item.quantity = new_quantity
             cart_item.save()
         except CartItem.DoesNotExist:
             # 如果不存在这个购物车项就创建一个
+            if cart.total_items >= MAX_CART_ITEMS: #  如果购物车已满，且添加的是新商品
+                return Response({"error": f"You can only add {MAX_CART_ITEMS} types of item at most for each cart."}, status=status.HTTP_400_BAD_REQUEST)
             cart_item = CartItem.objects.create(cart=cart, product=product, quantity=quantity)
 
         serializer = CartItemSerializer(cart_item)
@@ -54,10 +70,16 @@ class CartViewSet(viewsets.ViewSet):    # * 使用ViewSet，自定义增删改�
         except CartItem.DoesNotExist:
             return Response({"error": "Cart item not found."}, status=status.HTTP_404_NOT_FOUND)
         
-        quantity = request.data.get('quantity')
+        quantity = int(request.data.get('quantity'))    # ! 确保 quantity 是整数类型
         if not quantity:
             return Response({"error": "Quantity is required."}, status=status.HTTP_400_BAD_REQUEST)
         
+        #  添加商品数量限制验证
+        MAX_QUANTITY_PER_ITEM = 100 #  单个商品最大购买数量
+
+        if quantity > MAX_QUANTITY_PER_ITEM:
+            return Response({"error": f"You can only buy {MAX_QUANTITY_PER_ITEM} at most for each single item."}, status=status.HTTP_400_BAD_REQUEST)
+
         if cart_item.product.stock_quantity < int(quantity):
             # ? 再次检查库存是否充足
             return Response({"error": "Insufficient stock."}, status=status.HTTP_400_BAD_REQUEST)
