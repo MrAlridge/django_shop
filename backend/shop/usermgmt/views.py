@@ -11,8 +11,8 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator # 默认Token生成器
 from django.urls import reverse
 
-from backend.shop.product.models import Category, Product
-from backend.shop.product.serializers import CategorySerializer, ProductSerializer # 用于生成url
+from product.models import Category, Product
+from product.serializers import CategorySerializer, ProductSerializer # 用于生成url
 from .serializers import PasswordResetConfirmSerializer, PasswordResetRequestSerializer, UserRegistrationSerializer, UserLoginSerializer, UserProfileSerializer
 from .models import IsAdminUserOrReadOnly, IsOperatorUser, UserProfile
 

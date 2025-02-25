@@ -2,16 +2,16 @@ from rest_framework import serializers
 from .models import OrderItem, ShippingAddress, BillingAddress, Payment, Order
 from usermgmt.serializers import UserProfileSerializer
 # * 导入自身模块的Serializer
-from .serializers import OrderItemSerializer, ShippingAddressSerializer, BillingAddressSerializer, PaymentSerializer
+# from .serializers import OrderItemSerializer, ShippingAddressSerializer, BillingAddressSerializer, PaymentSerializer
 from product.serializers import ProductSerializer
 
 class OrderItemSerializer(serializers.ModelSerializer):
     # * 嵌套ProductSerializer，只展示部分字段
-    product = ProductSerializer(read_only=True, fields=['id', 'name', 'short_description', 'price', 'images'])
+    # product = ProductSerializer(read_only=True, fields=['id', 'name', 'short_description', 'price', 'images'])
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'quantity', 'price', 'total_price']
+        fields = '__all__'
         read_only_fields = ['total_price'] # 订单项总价只读
 
 class ShippingAddressSerializer(serializers.ModelSerializer):
@@ -35,7 +35,7 @@ class OrderSerializer(serializers.ModelSerializer):
     shipping_address_detail = ShippingAddressSerializer(read_only=True) # 嵌套 ShippingAddressSerializer
     billing_address_detail = BillingAddressSerializer(read_only=True) # 嵌套 BillingAddressSerializer
     payment_detail = PaymentSerializer(read_only=True) # 嵌套 PaymentSerializer
-    user = UserProfileSerializer(read_only=True, fields=['id', 'username', 'email']) # 嵌套 UserProfileSerializer，只展示部分字段
+    # user = UserProfileSerializer(read_only=True, fields=['id', 'username', 'email']) # 嵌套 UserProfileSerializer，只展示部分字段
 
     class Meta:
         model = Order

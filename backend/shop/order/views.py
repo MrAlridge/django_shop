@@ -4,7 +4,6 @@ from django_filters.rest_framework import DjangoFilterBackend   # * 用于过滤
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from backend.shop import order
 from .models import Order, OrderItem, ShippingAddress, BillingAddress, Payment
 from .serializers import OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, BillingAddressSerializer, PaymentSerializer
 # TODO 可能还需要在这里导入自定义个管理员权限类

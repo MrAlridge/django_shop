@@ -4,7 +4,7 @@ from product.serializers import ProductSerializer
 
 class CartItemSerializer(serializers.ModelSerializer):
     # * 嵌套 ProductSerializer，只展示部分字段
-    product = ProductSerializer(read_only=True, fields=['id', 'name', 'short_description', 'price', 'images'])
+    # product = ProductSerializer(read_only=True, fields=['id', 'name', 'short_description', 'price', 'images'])
     # * 购物车项，只读
     total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 

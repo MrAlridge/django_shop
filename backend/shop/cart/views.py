@@ -16,7 +16,7 @@ class CartViewSet(viewsets.ViewSet):    # * 使用ViewSet，自定义增删改�
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     # * 添加商品到购物车 action，URL: /api/cart/items/
-    @action(detail=False, methods=['POST'], url_path=['items'])
+    @action(detail=False, methods=['POST'], url_path='items')
     def add_item(self, request):
         """添加到购物车"""
         # ? 获取或创建当前用户的购物车

@@ -5,7 +5,7 @@ from rest_framework import viewsets, generics, permissions, filters, status
 from rest_framework.decorators import action #  自定义 action
 from rest_framework.response import Response
 
-from backend.shop.product.filters import ProductFilter
+from product.filters import ProductFilter
 from .models import Category, Product, ProductImage
 from .serializers import CategorySerializer, ProductSerializer, ProductImageSerializer
 
