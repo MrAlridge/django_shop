@@ -1,18 +1,16 @@
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter # 导入Router
-from .views import OrderViewSet, CustomerOrderViewSet, OrderPaymentView
+from rest_framework.routers import DefaultRouter
+from . import views
 
 router = DefaultRouter()
-# ! 管理员订单管理,URL前缀为/api/orders/
-router.register(r'orders', OrderViewSet, basename='order')
-# ? 顾客订单管理,URL前缀为/api/customer/orders/
-router.register(r'customer/orders', CustomerOrderViewSet, basename='customer-order')
+router.register(r'shipping-addresses', views.ShippingAddressViewSet, basename='shipping-address') #  注册配送地址ViewSet
+router.register(r'billing-addresses', views.BillingAddressViewSet, basename='billing-address') #  注册账单地址ViewSet
 
 urlpatterns = [
-    # 包含Router中的URL
-    path('', include(router.urls)),
-    # 订单支付API
-    path('customer/orders/<int:pk>/pay/', OrderPaymentView.as_view(), name='order-pay')
-    # TODO 支付结果回调URL
-]
+    path('orders/', views.OrderCreateView.as_view(), name='order-create'), # 创建订单
+    path('orders/', views.OrderListView.as_view(), name='order-list'), # 订单列表
+    path('orders/<int:order_id>/', views.OrderDetailView.as_view(), name='order-detail'), # 订单详情
+    path('orders/<int:order_id>/status/', views.OrderStatusUpdateView.as_view(), name='order-status-update'), # 订单状态更新
 
+    path('', include(router.urls)), #  包含 ViewSet 的路由
+]

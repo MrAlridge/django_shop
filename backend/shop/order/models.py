@@ -21,48 +21,62 @@ class Order(models.Model):
     :DateTime created_at: 创建时间 (DateTimeField)
     :DateTime updated_at: 更新时间 (DateTimeField)
     """
-    ORDER_STATUS_CHOICES = [    # 订单状态 choices
-        ('pending_payment', '待支付'),
-        ('processing', '处理中'),
-        ('shipped', '已发货'),
-        ('completed', '已完成'),
-        ('cancelled', '已取消'),
-        ('refunding', '退款中'),
-        ('refunded', '已退款'),
+    ORDER_STATUS_CHOICES = [
+        ('PENDING_PAYMENT', '待付款'),
+        ('PROCESSING', '处理中'),
+        ('SHIPPED', '已发货'),
+        ('DELIVERED', '已送达'),
+        ('COMPLETED', '已完成'), # 订单完成，例如用户确认收货
+        ('CANCELLED', '已取消'),
+        ('REFUND_REQUESTED', '退款申请中'),
+        ('REFUNDED', '已退款'),
+        ('PAYMENT_PENDING_MOBILE_MONEY', '待支付 (移动支付)'), #  非洲移动支付可能需要额外的状态
+        # ... 可以根据实际业务需求添加更多状态
     ]
-    PAYMENT_METHOD_CHOICES = [  # 支付方式 choices
-        # TODO:后期还要接入其他支付方式，所以暂时先写这些
-        ('theteller', 'theteller'),
-        ('DPO', 'DPO'),
-        ('expressPay', 'expressPay'),
-        ('MTN_Mobile_Money', 'MTN_Mobile_Money'),
-        ('cash_on_delivery', '货到付款'),
+    
+    PAYMENT_METHOD_CHOICES = [
+        ('MOBILE_MONEY', '移动支付'), # 例如 M-Pesa, MTN Mobile Money, Airtel Money 等
+        ('CREDIT_CARD', '信用卡'),
+        ('DEBIT_CARD', '借记卡'),
+        ('CASH_ON_DELIVERY', '货到付款'),
+        # ...  根据实际集成的支付方式添加
     ]
+    
     PAYMENT_STATUS_CHOICES = [
-        ('pending_payment', '待支付'),
-        ('paid', '已支付'),
-        ('payment_failed', '支付失败'),
-        ('refunding', '退款中'),
-        ('refunded', '已退款'),
+        ('PENDING', '待支付'),
+        ('PAID', '已支付'),
+        ('FAILED', '支付失败'),
+        ('REFUNDING', '退款中'),
+        ('REFUNDED', '已退款'),
     ]
 
-    order_number = models.CharField(max_length=150, unique=True, default=uuid.uuid4) # 订单编号，使用 UUID 默认值
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders') #  关联 User 模型
-    order_date = models.DateTimeField(auto_now_add=True) # 下单日期，自动添加
-    order_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) # 订单总金额
-    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True) # 运费，允许为空
-    order_status = models.CharField(max_length=50, choices=ORDER_STATUS_CHOICES, default='pending_payment') # 订单状态，默认待支付
-    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, default='alipay') # 支付方式，默认支付宝
-    payment_status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES, default='pending_payment') # 支付状态，默认待支付
-    shipping_address = models.ForeignKey('ShippingAddress', on_delete=models.CASCADE, related_name='orders') # 关联 ShippingAddress 模型
-    billing_address = models.ForeignKey('BillingAddress', on_delete=models.CASCADE, related_name='orders', blank=True, null=True) # 关联 BillingAddress 模型，允许为空
-    note = models.TextField(blank=True) # 订单备注，允许为空
+    order_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders') # 关联用户模型
+    order_number = models.CharField(max_length=100, unique=True, blank=True) # 订单号
+    order_date = models.DateTimeField(auto_now_add=True)
+    order_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    final_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    order_status = models.CharField(max_length=50, choices=ORDER_STATUS_CHOICES, default='PENDING_PAYMENT')
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True) # 允许为空，因为订单创建时可能未选择支付方式
+    payment_status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES, default='PENDING')
+    transaction_id = models.CharField(max_length=200, blank=True, null=True)
+    shipping_address = models.ForeignKey('ShippingAddress', on_delete=models.SET_NULL, null=True, related_name='orders') #  设置为 SET_NULL，避免地址删除影响订单
+    billing_address = models.ForeignKey('BillingAddress', on_delete=models.SET_NULL, null=True, related_name='orders_billing') #  设置为 SET_NULL
+    customer_notes = models.TextField(blank=True) # 订单备注，允许为空
+    
     # * 订单日期相关
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Order #{self.order_number} by {self.user.username}"
+    
+    def save(self, *args, **kwargs):
+        if not self.order_number: #  自动生成订单号
+            self.order_number = f"ORDER-{uuid.uuid4().hex.upper()[:10]}" #  示例订单号生成规则
+        super(Order, self).save(*args, **kwargs)
     
 class OrderItem(models.Model):
     """订单项模型，存储订单中每个商品的详细信息。
@@ -76,21 +90,18 @@ class OrderItem(models.Model):
     :DateTime created_at: 创建时间 (DateTimeField)
     :DateTime updated_at: 更新时间 (DateTimeField)
     """
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items') # 关联 Order 模型
-    product = models.ForeignKey('product.Product', on_delete=models.CASCADE, related_name='order_items') # 关联 Product 模型，注意 product 应用的模型需要使用 'product.Product' 引用
-    quantity = models.IntegerField(default=1) # 购买数量，默认 1
-    price = models.DecimalField(max_digits=10, decimal_places=2) # 商品单价
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, editable=False) # 订单项总价，不可编辑，自动计算
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    order_item_id = models.AutoField(primary_key=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items') # 关联订单
+    product = models.ForeignKey('product.Product', on_delete=models.CASCADE, related_name='order_items') # 关联商品模型 (product 应用)
+    quantity = models.IntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2) # 下单时的商品价格
+    item_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
-        return f"{self.quantity} x {self.product.name} in Order #{self.order.order_number}"
-    
+        return f"Item {self.product.name} in Order #{self.order.order_number}"
+
     def save(self, *args, **kwargs):
-        # ? 这里的总价并没有计算优惠，优惠是通过别的方式计算的
-        self.total_price = self.quantity * self.price
+        self.item_total = self.quantity * self.price #  自动计算商品项总价
         super(OrderItem, self).save(*args, **kwargs)
 
 class ShippingAddress(models.Model):
@@ -108,20 +119,24 @@ class ShippingAddress(models.Model):
     :DateTime created_at: 创建时间 (DateTimeField)
     :DateTIme updated_at: 更新时间 (DateTimeField)
     """
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='shipping_address_detail') #  一对一关联 Order 模型
-    name = models.CharField(max_length=100) # 收货人姓名
-    phone_number = models.CharField(max_length=20) # 收货人手机号
-    province = models.CharField(max_length=100) # 省份
-    city = models.CharField(max_length=100) # 城市
-    district = models.CharField(max_length=100, blank=True) # 区/县，允许为空
-    address_detail = models.CharField(max_length=255) # 详细地址
-    postal_code = models.CharField(max_length=20, blank=True, null=True) # 邮政编码，允许为空
+    shipping_address_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='shipping_addresses')
+    full_name = models.CharField(max_length=200)
+    phone_number = models.CharField(max_length=20)
+    address_line1 = models.CharField(max_length=255)
+    address_line2 = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100)
+    state_province = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=20, blank=True) # 邮政编码可能为空
+    country = models.CharField(max_length=100) #  可以使用 django-countries 库
+
+    is_default = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Shipping Address for Order #{self.order.order_number}"
+        return f"Shipping Address for {self.user.username} - {self.full_name}, {self.city}"
     
 class BillingAddress(models.Model):
     """账单地址模型，存储订单的账单地址信息 (可选，如果需要区分收货地址和账单地址)。  模型结构与 ShippingAddress 类似。  如果账单地址和收货地址相同，可以不创建此模型，或者在 Order 模型中使用一个 Boolean 字段 is_billing_same_as_shipping 来标记是否使用相同的地址。  这里我们先创建独立的 BillingAddress 模型，以支持更灵活的场景。
@@ -138,45 +153,30 @@ class BillingAddress(models.Model):
     :DateTime created_at: 创建时间 (DateTimeField)
     :DateTIme updated_at: 更新时间 (DateTimeField)
     """
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='billing_address_detail') #  一对一关联 Order 模型
-    name = models.CharField(max_length=100) # 账单人姓名
-    phone_number = models.CharField(max_length=20) # 账单人手机号
-    province = models.CharField(max_length=100) # 省份
-    city = models.CharField(max_length=100) # 城市
-    district = models.CharField(max_length=100, blank=True) # 区/县，允许为空
-    address_detail = models.CharField(max_length=255) # 详细地址
-    postal_code = models.CharField(max_length=20, blank=True, null=True) # 邮政编码，允许为空
+    billing_address_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='billing_addresses')
+    full_name = models.CharField(max_length=200)
+    phone_number = models.CharField(max_length=20)
+    address_line1 = models.CharField(max_length=255)
+    address_line2 = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100)
+    state_province = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=20, blank=True) # 邮政编码可能为空
+    country = models.CharField(max_length=100) #  可以使用 django-countries 库
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Billing Addrress for Order #{self.order.order_number}"
+        return f"Billing Address for {self.user.username} - {self.full_name}, {self.city}"
     
-class Payment(models.Model):
-    """支付信息模型，存储订单的支付相关信息。
-
-    :integer id: 支付 ID (自动生成)
-    :Order order: 所属订单 (ForeignKey，关联到 Order 模型，一对一关系 OneToOneField)
-    :string payment_id: 支付平台交易 ID (CharField, 例如支付宝交易号、微信支付订单号，用于查询支付状态)
-    :DateTime payment_date: 支付时间 (DateTimeField, 记录支付成功时间)
-    :Demical payment_amount: 支付金额 (DecimalField, 实际支付金额，可能与订单总金额有差异，例如使用了优惠券、积分等)
-    :string payment_method: 支付方式 (CharField, 与 Order.payment_method 字段重复，可以冗余存储，方便查询)
-    :string payment_status: 支付状态 (CharField, 与 Order.payment_status 字段重复，可以冗余存储，方便查询)
-    :string raw_response: 支付平台原始响应数据 (TextField, 可选，存储支付平台返回的原始 JSON 或 XML 数据，用于排查问题)
-    :DateTime created_at: 创建时间 (DateTimeField)
-    :DateTime updated_at: 更新时间 (DateTimeField)
-    """
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='payment_detail') #  一对一关联 Order 模型
-    payment_id = models.CharField(max_length=200, blank=True) # 支付平台交易 ID，允许为空，例如货到付款可能没有交易ID
-    payment_date = models.DateTimeField(blank=True, null=True) # 支付时间，允许为空
-    payment_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) # 支付金额
-    payment_method = models.CharField(max_length=50, choices=Order.PAYMENT_METHOD_CHOICES, blank=True) # 支付方式，允许为空
-    payment_status = models.CharField(max_length=50, choices=Order.PAYMENT_STATUS_CHOICES, default='pending_payment') # 支付状态，默认待支付
-    raw_response = models.TextField(blank=True) # 支付平台原始响应数据，允许为空
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class OrderStatusLog(models.Model):
+    """订单状态日志模型"""
+    status_log_id = models.AutoField(primary_key=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='status_logs')
+    status = models.CharField(max_length=50, choices=Order.ORDER_STATUS_CHOICES) #  复用 Order 模型的订单状态 choices
+    timestamp = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
 
     def __str__(self):
-        return f"Payment for Order #{self.order.order_number}"
+        return f"Status Log for Order #{self.order.order_number} - {self.status} at {self.timestamp}"
