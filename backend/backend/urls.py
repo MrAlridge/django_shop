@@ -20,4 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('users.urls')), # 将users包含在api路径下
+    path('api/', include('products.urls')),
 ]
