@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'pages/register_page.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
+import 'pages/product_list_page.dart';
+import 'pages/product_detail_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +27,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
         '/home': (context) => const HomePage(),
+        '/products': (context) => const ProductListPage(),
+        '/product_detail': (context) => ProductDetailPage(productId: -1),
       },
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );

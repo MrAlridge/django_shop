@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',       # 实现产品筛选需要的库
     'rest_framework',
     'corsheaders',          # 解决跨域问题需要的库
     'users',
@@ -135,3 +136,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 跨域设置
 # TODO 生产环境这里要重新配一下
 CORS_ALLOW_ALL_ORIGNS = True
+
+CORS_ALLOWED_ORIGNS = [
+    "http://localhost:*",
+]
