@@ -19,7 +19,7 @@ class ProductListPageState extends State<ProductListPage> {
   bool _isOnSaleFilter = false;     // 是否促销筛选
   String _ordering = '-created_at'; // 排序字段
   int _page = 1;                    // 当前页码
-  int _pageSize = 10;               // 每页数量
+  final int _pageSize = 10;               // 每页数量
   bool _hasMore = true;             // 是否还有更多数据
 
   // 商品分类列表,用于筛选
