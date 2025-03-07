@@ -1,0 +1,167 @@
+# General Python and Django ignores
+*.pyc
+__pycache__/
+*.sqlite3
+*.sqlite3-journal
+instance/
+media/ # 如果你的 media 文件是用户上传并存储在项目目录中，通常应该忽略
+static/ # 忽略 Django collectstatic 命令收集的静态文件目录 (如果 STATIC_ROOT 设置在此)
+.DS_Store # macOS 目录服务文件
+.env # 忽略包含敏感信息的 .env 文件 (例如密钥、数据库密码)
+*.log
+*.pot
+*.mo
+*.orig
+*.rej
+*.swp
+*~
+._*
+
+# Django specific ignores - 可根据你的项目调整
+db.sqlite3 # 如果你使用 SQLite 数据库，通常忽略开发环境的数据库文件
+*.dump.rdb # Redis 数据库 dump 文件
+*. पार्ट # 如果你使用了其他数据库，忽略其数据文件
+local_settings.py # 本地开发设置文件 (如果使用)
+staticfiles/ # 忽略 Django collectstatic 命令收集的静态文件目录 (更通用的忽略方式)
+.pytest_cache/ # pytest 缓存目录
+.coverage # coverage.py 覆盖率报告文件
+htmlcov/ # coverage.py html 报告目录
+.tox/ # tox 测试环境目录
+.venv/ # 虚拟环境目录 (常见名称)
+venv/ # 虚拟环境目录 (常见名称)
+env/ # 虚拟环境目录 (常见名称)
+ENV/ # 虚拟环境目录 (常见名称)
+.Python # Visual Studio Python 工具创建的目录
+*.egg-info/ # Python egg 信息目录
+*.egg # Python egg 文件
+.installed.cfg # pip install 配置文件
+*.manifest # Python MANIFEST 文件
+*.spec # pyinstaller spec 文件
+build/ # 构建目录 (Python 包构建)
+dist/ # 发布目录 (Python 包发布)
+eggs/ # Python egg 目录
+develop-eggs/ # Python develop eggs 目录
+parts/ # buildout parts 目录
+bin/ # buildout bin 目录
+var/ # buildout var 目录
+pip-log.txt # pip 日志文件
+pip-delete-this.txt # pip 删除文件列表
+.ipynb_checkpoints # Jupyter Notebook checkpoints
+profile_default/ # Django 调试工具 profiler 默认输出目录
+__pycache__ # Python 字节码缓存目录
+*.py[cod] # Python 字节码文件
+*$py.class # JPython 类文件
+*~ # Emacs 备份文件
+\#*\# # Emacs 临时文件
+.*.swp # Vim 交换文件
+.*.un~ # Vim 备份文件
+.project # Eclipse 项目文件
+.pydevproject # PyDev 项目文件
+.idea # IntelliJ IDEA / PyCharm 项目文件
+*.project # NetBeans 项目文件
+.settings # Eclipse 设置目录
+.ropeproject # Rope 项目文件
+*.tmproj # TextMate 项目文件
+*.sublime-project # Sublime Text 项目文件
+*.sublime-workspace # Sublime Text 工作空间文件
+*.komodo-project # Komodo IDE 项目文件
+*.komodo-session # Komodo IDE 会话文件
+.gitignore # 自身，防止意外忽略
+.gitattributes # Git 属性文件，通常不需要忽略，除非有特殊情况
+.hgtags # Mercurial tags 文件
+.hgignore # Mercurial ignore 文件
+.bzr # Bazaar 版本控制目录
+.bzrignore # Bazaar ignore 文件
+
+
+# Flutter Specific ignores
+# General Flutter ignores - 适用于所有平台
+.dart_tool/ # Dart 工具目录
+.fvm/ # FVM (Flutter Version Management) 目录
+.idea/ # IntelliJ IDEA 或 Android Studio Flutter 项目设置目录
+.metadata # Flutter 元数据文件
+.packages # Dart 包信息文件
+.pub-cache/ # Dart pub 缓存目录
+.pub-cache # Dart pub 缓存目录 (另一种写法)
+.flutter-plugins # Flutter 插件信息文件
+.flutter-plugin-dependencies # Flutter 插件依赖文件
+.generated # Flutter 生成代码目录 (例如 generated_plugin_registrant.dart)
+android/app/src/main/assets/flutter_assets # 忽略 Android 端 Flutter assets 目录的构建输出
+ios/Flutter/App.framework # 忽略 iOS 端 Flutter App.framework 的构建输出
+ios/Flutter/Flutter.framework # 忽略 iOS 端 Flutter Flutter.framework 的构建输出
+linux/flutter/ephemeral # 忽略 Linux 端 Flutter ephemeral 目录的构建输出
+macos/Flutter/ephemeral # 忽略 macOS 端 Flutter ephemeral 目录的构建输出
+web/flutter_service_worker.js # 忽略 Web 端 Flutter service worker 文件
+web/version.json # 忽略 Web 端 Flutter 版本信息文件
+windows/flutter/ephemeral # 忽略 Windows 端 Flutter ephemeral 目录的构建输出
+build/ # Flutter build 输出目录 (APK, IPA, Web build 等)
+release/ # Flutter release 构建目录 (如果你的项目有 release 目录)
+ios/Podfile.lock # iOS CocoaPods 锁文件 (可选是否忽略，通常跟踪更稳定)
+android/.gradle # Android Gradle 缓存目录
+android/build # Android build 输出目录
+ios/Flutter/artifacts # iOS Flutter artifacts 目录
+macos/Flutter/artifacts # macOS Flutter artifacts 目录
+linux/Flutter/ephemeral # Linux Flutter ephemeral 目录 (重复出现，确保覆盖)
+windows/Flutter/ephemeral # Windows Flutter ephemeral 目录 (重复出现，确保覆盖)
+web/build # Web build 输出目录
+
+# Platform specific - 根据你的开发平台和目标平台调整
+# Android Specific
+android/local.properties # Android 本地配置，包含 SDK 路径等，通常本地化
+android/key.jks # Android keystore 文件 (签名密钥，**非常重要不要提交**)
+android/app/google-services.json # Firebase 配置文件 (如果使用了 Firebase, 根据情况决定是否忽略，敏感信息需注意)
+android/.idea/ # Android Studio 项目设置目录
+android/.gradle/ # Android Gradle 缓存目录
+android/app/build/ # Android app build 输出目录
+android/app/outputs/ # Android app 输出目录 (APK 等)
+android/app/release/ # Android app release 构建目录
+android/gradle/wrapper/gradle-wrapper.properties # Gradle Wrapper 属性文件，如果本地化 Gradle 版本，可以忽略
+
+# iOS Specific
+ios/Flutter/Generated.xcconfig # iOS Flutter 生成的 Xcode 配置
+ios/Podfile.lock # CocoaPods 锁文件 (重复出现，确保覆盖，可选是否忽略)
+ios/Pods/ # CocoaPods 依赖目录 (通常忽略，依赖管理通过 Podfile 和 Podfile.lock)
+ios/*.xcodeproj/xcuserdata/ # Xcode 用户数据 (本地化设置)
+ios/*.xcworkspace/xcuserdata/ # Xcode Workspace 用户数据 (本地化设置)
+ios/Runner.xcodeproj/xcuserdata/ # Runner 项目用户数据
+ios/Runner.xcworkspace/xcuserdata/ # Runner 工作空间用户数据
+ios/Flutter/App.framework # iOS App Framework (重复出现，确保覆盖)
+ios/Flutter/Flutter.framework # iOS Flutter Framework (重复出现，确保覆盖)
+ios/build/ # iOS build 输出目录
+ios/DerivedData/ # Xcode Derived Data，构建缓存和索引
+
+
+# Web Specific
+web/build/ # Web build 输出目录 (重复出现，确保覆盖)
+
+# macOS Specific
+macos/build/ # macOS build 输出目录 (重复出现，确保覆盖)
+
+
+# Windows Specific
+windows/build/ # Windows build 输出目录 (重复出现，确保覆盖)
+windows/runner/Debug/ # Windows Runner Debug 构建输出
+windows/runner/Release/ # Windows Runner Release 构建输出
+
+# Linux Specific
+linux/build/ # Linux build 输出目录 (重复出现，确保覆盖)
+
+
+# VS Code specific - 如果你使用 VS Code
+.vscode/ # VS Code 配置和缓存目录
+!.vscode/settings.json # 排除 .vscode 目录，但 **不排除** settings.json (如果需要共享 VS Code 设置)
+!.vscode/tasks.json # 同上，不排除 tasks.json
+!.vscode/launch.json # 同上，不排除 launch.json
+!.vscode/extensions.json # 同上，不排除 extensions.json
+.history/ # VS Code 本地历史记录
+
+# IntelliJ IDEA / Android Studio specific - 如果你使用 IntelliJ IDEA 或 Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/ # IntelliJ IDEA 项目设置目录 (重复出现，确保覆盖)
+out/ # IntelliJ IDEA 输出目录
+
+# Keep directories for git to track empty directories - 如果需要追踪空目录 (例如 media 目录结构)
+!media/.gitkeep
+!static/.gitkeep
