@@ -9,7 +9,7 @@ class ProductCategoryViewSet(viewsets.ModelViewSet):
     """
     queryset = ProductCategory.objects.all()
     serializer_class = ProductCategorySerializer
-    permission_classes = [permissions.IsAdminUser] #  这里先设置只有管理员用户可以操作商品分类数据，后续根据需求调整权限
+    # permission_classes = [permissions.IsAdminUser] #  这里先设置只有管理员用户可以操作商品分类数据，后续根据需求调整权限
 
 class ProductPagination(pagination.PageNumberPagination):
     """商品列表分页器"""
@@ -23,7 +23,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAdminUser] # 这里先设置只有管理员用户可以操作商品数据，后续根据需求调整权限
+    # permission_classes = [permissions.IsAdminUser] # 这里先设置只有管理员用户可以操作商品数据，后续根据需求调整权限
     filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
     search_fields = ['name', 'description']
     filterset_fields = ['category', 'is_on_sale', 'price']  # 指定可以用于筛选的字段
